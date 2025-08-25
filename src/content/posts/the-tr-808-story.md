@@ -1,5 +1,5 @@
 ---
-title: 'The TR-808 Story'
+title: 'Boom Shakalaka'
 pubDate: '2025-05-10'
 ---
 
