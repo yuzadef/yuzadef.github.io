@@ -1,5 +1,5 @@
 ---
-title: 'Boom Shakalaka'
+title: 'Test publish'
 pubDate: '2025-05-10'
 ---
 
