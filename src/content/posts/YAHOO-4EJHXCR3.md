@@ -32,11 +32,11 @@ Don’t treat backslashes as allowed parts of a destination. If a URL path conta
 ```
 
 ## Report timeline
-**Submitted on:** *4/10/2025*
+**4/10/2025** -- *Submission created*
 
-**Triager's final comment:** *Thank you for your bug submission to Yahoo! We are already aware of this issue and are working towards a fix. Please continue to send us vulnerability reports!*
+**10/7/2025** -- *Triager's commented: Thank you for your bug submission to Yahoo! We are already aware of this issue and are working towards a fix. Please continue to send us vulnerability reports!*
 
-**Submission status:** *Duplicate | Updated on 7/10/2025*
+**10/7/2025** *Submission status updated to "Duplicate"*
 
 ---
 
