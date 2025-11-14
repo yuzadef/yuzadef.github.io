@@ -4,8 +4,8 @@ export const themeConfig: ThemeConfig = {
   // SITE INFO ///////////////////////////////////////////////////////////////////////////////////////////
   site: {
     website: 'https://astro-chiri.netlify.app/', // Site domain
-    title: 'Yuzaa', // Site title
-    author: 'Yuzadef', // Author name
+    title: 'Vulnerability Submission Directory', // Site title
+    author: 'Yuzaa', // Author name
     description: '', // Site description
     language: 'en-US' // Default language
   },
