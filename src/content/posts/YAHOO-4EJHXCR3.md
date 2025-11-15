@@ -2,6 +2,10 @@
 title: "Open Redirect on Yahoo's acquisition"
 pubDate: "2025-10-4"
 ---
+## Summary
+An open redirect vulnerability was found on www.redacted.com
+, where appending %5c (a URL-encoded backslash) to a URL allows an attacker to redirect users to a malicious site. This can be exploited for phishing attacks, where users are redirected to a fake login page that mimics the original site, capturing their credentials and leading to potential account takeovers. The issue is reproducible across multiple browsers, including Firefox, Chrome, and Edge. To fix this, it's recommended that the server reject or sanitize URLs containing backslashes or the %5c character to prevent malicious redirects. Unfortunately, escalating to XSS was not possible due to the strong WAF and CSP in place.
+
 ## Initial report
 ```markdown
 Hi,
