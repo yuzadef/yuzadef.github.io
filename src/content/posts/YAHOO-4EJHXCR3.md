@@ -35,6 +35,11 @@ Recommended fix
 Don’t treat backslashes as allowed parts of a destination. If a URL path contains \ or %5c, reject it or convert it to a safe value.
 ```
 
+## Fix bypassed
+After 2 months from when the initial report was submitted, the Open Redirect vulnerability was fixed by the security team and fortunately, I was notified about it. Receiving that notification, I immediately went back to the target and test the same payload again for Open Redirect -> `%5cevil.com` -- and YES, the vulnerability was fixed. I was glad that it was fixed because at the same time, I knew the security team didn't anticipate double URL-encoding and end up not pushing a fix for it. To confirm, I test the endpoint again with the same Open Redirect payload but this time, instead of single-URL encoding (%5c), double-URL encoded the payload to `%255c` which translates to `%5c` and then `\`. Not so surprising, the Open Redirect payload was successful and redirect me to `evil.com`.
+
+As usual, where there is Open Redirect, it is always worth it to test for XSS, but unfortunately, the WAF implemented on that domain carefully checks for `javascript` which is required to craft an XSS payload. At the time, I was focusing on a different application and didn't want to waste too much time trying to bypass the WAF, so I end up submitting another report to the company, accepted and received bounty with bonus for the submission.
+
 ## Report timeline
 **4/10/2025:** *Submission created*
 
@@ -42,6 +47,11 @@ Don’t treat backslashes as allowed parts of a destination. If a URL path conta
 
 **10/7/2025:** *Submission status updated to "Duplicate"*
 
+**24/11/2025:** *New submission created for the Open Redirect bypass*
+
+**26/11/2025:** *Submission status updated to "Pending"*
+
+**12/12/2025:** *Submission status updated to "Accepted" and received bounty with bonus from the company*
 ---
 
 *Submitted on Intigriti*
