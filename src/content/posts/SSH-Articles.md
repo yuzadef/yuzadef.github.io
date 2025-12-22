@@ -1,5 +1,5 @@
 ---
-title: "SSH Articles"
+title: "Server-side Hacking Articles"
 pubDate: "2025-12-22"
 ---
 1. [Dependency Confusion leads to Remote Code Execution](https://octayus.com/blog/DependencyConfusionRCE)
