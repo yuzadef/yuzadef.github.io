@@ -2,42 +2,85 @@
 title: "Guest users can rejoin a locked group order due to logic flaw"
 pubDate: "2025-1-27"
 ---
-## Summary
-A logic flaw in the group order access control allows guest users to rejoin a locked group order using an existing invitation link, even if they had previously left. Once a group order is locked, no new participants—authenticated or guest—should be able to join, but guest users can still bypass this restriction by reusing the original invite link. Authenticated users who leave the group are properly prevented from rejoining, but this safeguard is not enforced for guests, leading to inconsistent behavior. The issue creates a security gap, allowing guests to bypass the intended lock on group participation. To fix this, guest users should be restricted from rejoining locked groups, just like authenticated users.
 
-## Initial report
-```markdown
-A logic flaw in the group order access control mechanism allows guest users to rejoin a locked group order using an existing invitation link, even though they previously left. This should not be possible because once a group order is locked, no new participants (including previously removed users) should be able to join, regardless if they are authenticated or guest users.
+## Overview
 
-3 test users would be required (2 authenticated users, 1 guest) to demonstrate the issue:
+Group ordering is designed to be simple: invite people, build an order together, then lock it when everything’s final. Once locked, no one new should be able to join == end of story.
 
-1. (Auth-UserA) Go to https://wolt.com/en/discovery and select any restaurants (e.g. McDonalds).
-2. (Auth-UserA) Create a group order by clicking on the "Order together" button.
-3. (Auth-UserA) Share the link to the other users (Auth-UserB) and (Guest-UserC) so they can join the group order.
-4. Once Auth-UserB and Guest-UserC have joined the group order, now leave the group order.
-5. (Auth-UserA) Lock the group order. Now nobody is able to join the group order as it has been locked.
-6. Auth-UserB and Guest-UserC use the same group invitation link from before and notice that Guest-UserC is able to join the group order again but Auth-UserB is not able to. This should not be possible for guests or authenticated users because once a group order is locked, no new participants (including previously removed users) should be able to join.
+However, a logic flaw in the group order access control breaks this expectation. While authenticated users are correctly blocked from rejoining a locked group order, guest users are not. If a guest leaves a group order before it’s locked, they can later rejoin it using the original invitation link—even after the group has been locked.
 
-Expected Behavior
-Once a group order is locked, no new participants(including previously removed users) should be able to join, regardless of their authentication status.
-
-Actual Behavior
-Authenticated users who leave cannot rejoin a locked group (intended behavior). Guest users who leave can still rejoin using the original invitation link, bypassing the lock restriction (unintended behavior).
-
-Impact
-Guest users can bypass the group lock restriction, violating the intended business logic. The system correctly restricts authenticated users but fails to apply the same rule to guests, leading to inconsistent security behavior.
-
-Recommended fix
-Ensure that guest users who leave a group order are restricted similarly to authenticated users and prevented from rejoining once the group is locked.
-```
-
-## Report timeline
-**27/1/2025:** *Submission created*
-
-**30/1/2025:** *Triager's commented: Thank you for choosing our platform for your bug-bounty adventures! When validating your report, we noticed that this exact issue has been reported before. Therefore, we will have to close your report as duplicate. This means that you will still receive some reputation points. Looking forward to your next submission!*
-
-**10/7/2025:** *Submission status updated to "Duplicate" and severity Medium to Low (3.1)*
+This creates an inconsistency in how the system enforces participation rules and opens up a small but meaningful security gap.
 
 ---
 
-*Submitted on Intigriti*
+## What Went Wrong
+
+At a high level, the system treats authenticated users and guest users differently when enforcing group lock restrictions.
+
+- **Authenticated users** who leave a group order are correctly prevented from rejoining once the order is locked.
+- **Guest users**, on the other hand, are not subject to the same restriction. They can reuse an old invitation link to rejoin the group even after the lock is in place.
+
+From a business-logic perspective, this is unintended behavior. A locked group order should be immutable in terms of participants, regardless of authentication status.
+
+---
+
+## Reproducing the Issue
+
+The issue can be demonstrated with three users:
+
+- Two authenticated users
+- One guest user
+
+### Steps
+
+1. An authenticated user creates a group order from the discovery page.
+2. The group invitation link is shared with another authenticated user and a guest user.
+3. Both users join the group order.
+4. Both users leave the group order.
+5. The original creator locks the group order.
+6. Both users attempt to rejoin using the original invitation link.
+
+### Result
+
+- The authenticated user is blocked (expected behavior).
+- The guest user successfully rejoins the locked group (unexpected behavior).
+
+---
+
+## Expected vs Actual Behavior
+
+### Expected
+
+Once a group order is locked, **no participants, new or previously removed should be able to join**, regardless of whether they are authenticated or guests.
+
+### Actual
+
+- Authenticated users are correctly blocked from rejoining.
+- Guest users can still rejoin using the original invite link.
+
+---
+
+## Impact
+
+While this issue doesn’t expose sensitive data or allow account takeover, it **violates core business logic** and creates inconsistent enforcement of access rules.
+
+---
+
+## Recommended Fix
+
+- Apply the same rejoin restrictions to guest users as authenticated users.
+- Once a group order is locked, invalidate the invitation link for everyone, or explicitly check the lock state before allowing any join action—guest or authenticated.
+
+Consistency is the key here.
+
+---
+
+## Disclosure Timeline
+
+- **January 27, 2025** – Report submitted  
+- **January 30, 2025** – Triager confirmed the issue was a duplicate of a prior report  
+- **July 10, 2025** – Status updated to *Duplicate*
+
+---
+
+*Reported via Intigriti*
