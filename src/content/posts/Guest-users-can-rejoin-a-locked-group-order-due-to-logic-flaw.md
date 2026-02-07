@@ -7,7 +7,7 @@ pubDate: "2025-1-27"
 
 Group ordering is designed to be simple: invite people, build an order together, then lock it when everything’s final. Once locked, no one new should be able to join == end of story.
 
-However, a logic flaw in the group order access control breaks this expectation. While authenticated users are correctly blocked from rejoining a locked group order, guest users are not. If a guest leaves a group order before it’s locked, they can later rejoin it using the original invitation link—even after the group has been locked.
+However, a logic flaw in the group order access control breaks this expectation. While authenticated users are correctly blocked from rejoining a locked group order, guest users are not. If a guest leaves a group order before it’s locked, they can later rejoin it using the original invitation link, even after the group has been locked.
 
 This creates an inconsistency in how the system enforces participation rules and opens up a small but meaningful security gap.
 
