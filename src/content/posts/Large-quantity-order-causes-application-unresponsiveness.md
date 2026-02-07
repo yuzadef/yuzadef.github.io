@@ -18,7 +18,7 @@ To reproduce the issue, suggested to have 2 test users for testing -> userA (hos
 the request should look like below
 '''
 PATCH /v1/group_order/679e483e31933c4fff20deb9/participants/me/basket HTTP/2
-Host: restaurant-api.wolt.com
+Host: restaurant-api.example.com
 Cookie: .....
 Authorization: Bearer .....
 
@@ -68,12 +68,10 @@ Implement a validation on the 'count' parameter to restrict excessively high val
 
 **5/2/2025:** *Researcher responded: Yes, the attacker needs to be explicitly invited into the group order by the host user, this can happen through normal participation or social engineering. As long as the attacker obtains the group order invitation code, they can repeatedly join the target group order using guest account and disrupt the victim’s activities with unresponsiveness.*
 
-**5/2/2025:** *Company updated severity from Medium (4.3) to Low*
-
 **5/2/2025:** *Company commented: Thanks for confirming it! The severity level was corrected based on it. Hope to see new reports from you!*
 
 **5/2/2025:** *Bounty awarded to researcher*
 
 ---
 
-*Submitted on Intigriti*
+*Submitted via Intigriti*
