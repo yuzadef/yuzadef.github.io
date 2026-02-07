@@ -55,7 +55,7 @@ Ensure the issued API endpoint to verify that the requesting user is still a par
 
 **6/2/2025:** *Triager's commented: Thank you for choosing our platform for your bug-bounty adventures! When validating your report, we noticed that this exact issue has been reported before. Therefore, we will have to close your report as duplicate. This means that you will still receive some reputation points. Looking forward to your next submission!*
 
-**10/7/2025:** *Submission status updated to "Duplicate" and severity to Low (3.1)*
+**10/7/2025:** *Submission status updated to "Duplicate"*
 
 ---
 
